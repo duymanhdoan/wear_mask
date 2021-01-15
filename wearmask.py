@@ -260,7 +260,7 @@ class FaceMasker:
         distance1 = math.sqrt( ((point_left[0]-point_nose[0])**2)+((point_left[1]-point_nose[1])**2) )
         distance2 = math.sqrt( ((point_right[0]-point_nose[0])**2)+((point_right[1]-point_nose[1])**2) )
         
-        thres = max(distance1,distance2)/ min(distance1,distance2) >= self.threshold
+        thres = max(distance1,distance2)/ max(min(distance1,distance2),1) >= self.threshold
         
         # fll = draw_landmarks(self.face_path ,face_landmarks)
         # image = draw_landmarks_withcv2(face_image_np, fll, color=(255, 0, 0), thickness=2)
