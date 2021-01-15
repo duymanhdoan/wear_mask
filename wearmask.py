@@ -391,8 +391,8 @@ if __name__ == '__main__':
     """
     # dataset_path ='/home/minglee/Documents/aiProjects/dataset/ouput_dir/false_image_non_mask'
     # save_dataset_path = '/home/minglee/Documents/aiProjects/dataset/ouput_dir/image_landmarks'
-    dataset_path ='/mnt/DATA/duydmFabbi/dataFace/generator_datav2/faces_ms1m_112x112'
-    save_dataset_path = '/home/duydm/Documents/scrip_face/wear_mask/ms1ms_generate_data'        
+    dataset_path ='/mnt/DATA/duydmFabbi/dataFace/VN-celeb'
+    save_dataset_path = '/home/duydm/Documents/scrip_face/wear_mask/output_dir'        
     unmasked_paths=[]
     for root, dirs, files in os.walk(dataset_path, topdown=False):
         for dir in tqdm.tqdm(dirs):
