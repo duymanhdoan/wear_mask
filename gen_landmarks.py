@@ -33,11 +33,8 @@ def gen_landmark(image_path):
         cv2.imread(image_path), cv2.COLOR_BGR2RGB)
     face_landmarks = fa.get_landmarks_from_image(example_image)
     face_landmarks = np.floor(face_landmarks[0]).astype(np.int32)
-    
-    face_location = fa.face_detector.detect_from_image(example_image)
-    face_location = [tuple(np.floor(face_location[0][0:4]).astype(np.int32))]
-    
-    return face_location, face_landmarks 
+
+    return  face_landmarks 
 
 def main(): 
     path = '/home/minglee/Documents/aiProjects/dataset/ouput_dir/false_image_non_mask/dir/0.png'

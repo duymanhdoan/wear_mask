@@ -237,7 +237,7 @@ class FaceMasker:
         
         face_image_np = face_recognition.load_image_file(self.face_path)
         face_locations = face_recognition.face_locations(face_image_np, model=self.model)
-        _, landmark =  gen_landmark(self.face_path)
+        landmark =  gen_landmark(self.face_path)
         landmarks = []
         for point in landmark: 
             landmarks.append(tuple(point))
@@ -410,3 +410,4 @@ if __name__ == '__main__':
                     pass   
                 else:                                                                                                                                                                       
                     unmasked_paths = cli(imgpath,save_imgpath)
+46635 47012 47042 47119 48987 51425 51457 51463 52037
