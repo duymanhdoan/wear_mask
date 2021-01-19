@@ -81,7 +81,7 @@ def cli(pic_path ,save_pic_path):
         print(f'Picture {pic_path} not exists.')
         sys.exit(1)
     mask_path = DEFAULT_IMAGE_PATH
-    unmasked_paths = FaceMasker(pic_path, 1.8, mask_path, True, 'cnn',save_pic_path).mask()
+    unmasked_paths = FaceMasker(pic_path, 2.0, mask_path, True, 'cnn',save_pic_path).mask()
     return unmasked_paths
 
 def draw_landmarks(path, face_landmarks): 
@@ -233,6 +233,16 @@ class FaceMasker:
         self._face_img: ImageFile = None
         self._mask_img: ImageFile = None
         self.threshold = threshold
+    
+    def distance(self,landmark):
+        point_left = landmark[0]
+        point_right = landmark[16]
+        point_left_eye = landmark[36]
+        point_right_eye = landmark[45]         
+        distance1 = math.sqrt( ((point_left[0] - point_left_eye[0])**2)+((point_left[1]-point_left_eye[1])**2) )
+        distance2 = math.sqrt( ((point_right[0]- point_right_eye[0])**2)+((point_right[1]-point_right_eye[1])**2) )
+        return max(distance1,distance2)/ max(min(distance1,distance2),1) <= self.threshold
+    
     def mask(self):
         
         face_image_np = face_recognition.load_image_file(self.face_path)
@@ -241,6 +251,9 @@ class FaceMasker:
         landmarks = []
         for point in landmark: 
             landmarks.append(tuple(point))
+        
+        if landmarks == []: 
+            return null 
         face_landmarks = [{
             'chin':landmarks[0:17],  # true
             'left_eyebrow':landmarks[17:22], # true
@@ -253,22 +266,6 @@ class FaceMasker:
             'bottom_lip':landmarks[54:60] + [landmarks[48]] + [landmarks[60]] + [landmarks[67]] + [landmarks[66]] + [landmarks[65]] + [landmarks[64]]
         }]
         
-        point_right = landmark[2]
-        point_left = landmark[16]
-        point_nose = landmark[30]
-        
-        distance1 = math.sqrt( ((point_left[0]-point_nose[0])**2)+((point_left[1]-point_nose[1])**2) )
-        distance2 = math.sqrt( ((point_right[0]-point_nose[0])**2)+((point_right[1]-point_nose[1])**2) )
-        
-        thres = max(distance1,distance2)/ max(min(distance1,distance2),1) >= self.threshold
-        
-        # fll = draw_landmarks(self.face_path ,face_landmarks)
-        # image = draw_landmarks_withcv2(face_image_np, fll, color=(255, 0, 0), thickness=2)
-        # print('path: {} -> len of face landmark:{} distance right to nose: {:.5f} distance left to nose: {:.5f} checkpoint :{} \n '
-        #       .format(self.face_path,len(count_points(face_landmarks)),distance2, distance1, thres))
-        # cv2.imwrite(self.save_path, cv2.cvtColor(image, cv2.COLOR_RGBA2BGR))
-        
- 
         self._face_img = Image.fromarray(face_image_np)
         self._mask_img = Image.open(self.mask_path)
         found_face = False
@@ -286,7 +283,11 @@ class FaceMasker:
             self._mask_face(face_landmark)
         
         unmasked_paths = []
-        if found_face and thres==False:
+        thres = False
+        if found_face: 
+            thres = self.distance(landmarks)
+        
+        if found_face and thres:
             # align
             src_faces = []
             src_face_num = 0
@@ -312,7 +313,7 @@ class FaceMasker:
             # cv2.imwrite(self.save_path, cv2.cvtColor(face_image_np, cv2.COLOR_RGBA2BGR))
 
         
-        return unmasked_paths
+        return unmasked_paths    
 
     def _mask_face(self, face_landmark: dict):
         nose_bridge = face_landmark['nose_bridge']
@@ -389,10 +390,9 @@ if __name__ == '__main__':
     """
     generate data from image to wear mask face in picture. 
     """
-    # dataset_path ='/home/minglee/Documents/aiProjects/dataset/ouput_dir/false_image_non_mask'
-    # save_dataset_path = '/home/minglee/Documents/aiProjects/dataset/ouput_dir/image_landmarks'
     dataset_path ='/mnt/DATA/duydmFabbi/dataFace/VN-celeb'
-    save_dataset_path = '/home/duydm/Documents/scrip_face/wear_mask/output_dir'        
+    save_dataset_path = '/mnt/DATA/duydmFabbi/dataFace/data_wearmask'  
+
     unmasked_paths=[]
     for root, dirs, files in os.walk(dataset_path, topdown=False):
         for dir in tqdm.tqdm(dirs):
@@ -410,4 +410,3 @@ if __name__ == '__main__':
                     pass   
                 else:                                                                                                                                                                       
                     unmasked_paths = cli(imgpath,save_imgpath)
-46635 47012 47042 47119 48987 51425 51457 51463 52037
