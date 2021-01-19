@@ -27,7 +27,7 @@ def draw_landmarks(image_path):
     # Show the picture
     pil_image.show()
 
-
+    
 
 def main(): 
     dataset_path ='/home/minglee/Documents/aiProjects/dataset/ouput_dir/image_false_example'

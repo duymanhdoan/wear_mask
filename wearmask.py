@@ -81,8 +81,8 @@ def cli(pic_path ,save_pic_path):
         print(f'Picture {pic_path} not exists.')
         sys.exit(1)
     mask_path = DEFAULT_IMAGE_PATH
-    unmasked_paths = FaceMasker(pic_path, 2.0, mask_path, True, 'cnn',save_pic_path).mask()
-    return unmasked_paths
+    FaceMasker(pic_path, 2.0, mask_path, True, 'cnn',save_pic_path).mask()
+    
 
 def draw_landmarks(path, face_landmarks): 
 
@@ -244,16 +244,18 @@ class FaceMasker:
         return max(distance1,distance2)/ max(min(distance1,distance2),1) <= self.threshold
     
     def mask(self):
-        
         face_image_np = face_recognition.load_image_file(self.face_path)
         face_locations = face_recognition.face_locations(face_image_np, model=self.model)
         landmark =  gen_landmark(self.face_path)
+        
+        if landmark == []: 
+            return None 
+        
         landmarks = []
         for point in landmark: 
             landmarks.append(tuple(point))
         
-        if landmarks == []: 
-            return null 
+        
         face_landmarks = [{
             'chin':landmarks[0:17],  # true
             'left_eyebrow':landmarks[17:22], # true
@@ -282,7 +284,6 @@ class FaceMasker:
             found_face = True
             self._mask_face(face_landmark)
         
-        unmasked_paths = []
         thres = False
         if found_face: 
             thres = self.distance(landmarks)
@@ -306,14 +307,6 @@ class FaceMasker:
                 size = (int(CROPE_SIZE), int(CROPE_SIZE))
                 faces_after_resize = cv2.resize(faces, size, interpolation=cv2.INTER_AREA)
                 cv2.imwrite(self.save_path, faces_after_resize)
-        else:
-            #在这里记录没有裁的图片
-            # print('Found no face.' + self.save_path)
-            unmasked_paths.append(self.save_path)
-            # cv2.imwrite(self.save_path, cv2.cvtColor(face_image_np, cv2.COLOR_RGBA2BGR))
-
-        
-        return unmasked_paths    
 
     def _mask_face(self, face_landmark: dict):
         nose_bridge = face_landmark['nose_bridge']
@@ -390,23 +383,26 @@ if __name__ == '__main__':
     """
     generate data from image to wear mask face in picture. 
     """
-    dataset_path ='/mnt/DATA/duydmFabbi/dataFace/VN-celeb'
-    save_dataset_path = '/mnt/DATA/duydmFabbi/dataFace/data_wearmask'  
-
-    unmasked_paths=[]
-    for root, dirs, files in os.walk(dataset_path, topdown=False):
-        for dir in tqdm.tqdm(dirs):
-            fs = os.listdir(root + '/' + dir)
-            for name in fs:
-                new_root = root.replace(dataset_path, save_dataset_path)
-                new_root = new_root + '/' + dir
-                if not os.path.exists(new_root):
-                    os.makedirs(new_root)
-                # deal
-    
-                imgpath = os.path.join(root,dir, name)
-                save_imgpath = os.path.join(new_root,name)
-                if os.path.exists(save_imgpath):
-                    pass   
-                else:                                                                                                                                                                       
-                    unmasked_paths = cli(imgpath,save_imgpath)
+    imgpath = '/home/minglee/Documents/aiProjects/dataset/12.png'
+    save_imgpath = ''
+    unmasked_paths = cli(imgpath,save_imgpath)
+    print('done!')
+    # dataset_path ='/mnt/DATA/duydmFabbi/dataFace/VN-celeb'
+    # save_dataset_path = '/mnt/DATA/duydmFabbi/dataFace/data_wearmask'  
+    # 
+    # for root, dirs, files in os.walk(dataset_path, topdown=False):
+    #     for dir in tqdm.tqdm(dirs):
+    #         fs = os.listdir(root + '/' + dir)
+    #         for name in fs:
+    #             new_root = root.replace(dataset_path, save_dataset_path)
+    #             new_root = new_root + '/' + dir
+    #             if not os.path.exists(new_root):
+    #                 os.makedirs(new_root)
+    #             # deal
+    # 
+    #             imgpath = os.path.join(root,dir, name)
+    #             save_imgpath = os.path.join(new_root,name)
+    #             if os.path.exists(save_imgpath):
+    #                 pass   
+    #             else:                                                                                                                                                                       
+    #                 cli(imgpath,save_imgpath)

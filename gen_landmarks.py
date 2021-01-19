@@ -30,11 +30,21 @@ def gen_landmark(image_path):
     fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, device='cuda')
     example_image = cv2.cvtColor(
         cv2.imread(image_path), cv2.COLOR_BGR2RGB)
-    face_landmarks = fa.get_landmarks_from_image(example_image)
-    if face_landmarks != []:
-        return np.floor(face_landmarks[0]).astype(np.int32)
-    else: 
-        return face_landmarks
+    face_landmarks = []
+    try:
+        face_landmarks = fa.get_landmarks_from_image(example_image)
+        print('len of land marks is: {}'.format(len(face_landmarks)))
+
+        if len(face_landmarks) > 1: 
+            print('land marks have len qual 2 : ',face_landmarks)
+
+        if len(face_landmarks) == 0: 
+            return [] 
+        else:
+            return np.floor(face_landmarks[0]).astype(np.int32)
+    except: 
+        print('error') 
+    return [] 
 
 def visual_distance(path): 
     image = face_recognition.load_image_file(path) 
